@@ -1,8 +1,13 @@
 package com.g4solutions.typefrenzy.domain;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +19,7 @@ import lombok.EqualsAndHashCode;
 public class ApplicationUser extends AbstractEntity {
 
   /**
-   * Application user name.
+   * Application username.
    */
   @Column(name = "username", nullable = false)
   private String username;
@@ -22,7 +27,7 @@ public class ApplicationUser extends AbstractEntity {
   /**
    * Application user email.
    */
-  @Column(name = "email", nullable = false)
+  @Column(name = "email", nullable = false, unique = true)
   private String email;
 
   /**
@@ -36,6 +41,12 @@ public class ApplicationUser extends AbstractEntity {
    */
   @Column(name = "deleted_at", columnDefinition = "TIMESTAMP")
   private LocalDateTime deletedAt;
+
+  /**
+   * Application user scores.
+   */
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  private Set<Score> scores = new LinkedHashSet<>();
 
   /**
    * Creates an instance of {@link ApplicationUser}

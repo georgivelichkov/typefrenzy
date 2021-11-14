@@ -42,8 +42,7 @@ public class PageableBuilder {
     }
 
     if (AbstractEntity.class.isAssignableFrom(entityType)) {
-      return PageRequest.of(page, pageSize,
-          Sort.by(Order.desc("createdAt"), Order.desc("priority")));
+      return PageRequest.of(page, pageSize, Sort.by(Order.desc("createdAt")));
     }
 
     return PageRequest.of(page, pageSize);

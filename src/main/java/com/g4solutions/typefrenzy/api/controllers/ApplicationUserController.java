@@ -7,7 +7,6 @@ import com.g4solutions.typefrenzy.api.dto.UpdateApplicationUserRequest;
 import com.g4solutions.typefrenzy.service.ApplicationUserService;
 import java.util.Map;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +54,7 @@ public class ApplicationUserController {
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ApplicationUserResponse> create(
-      @NotNull @Valid @RequestBody CreateApplicationUserRequest request) {
+      @Valid @RequestBody CreateApplicationUserRequest request) {
     ApplicationUserController.log
         .info("Requesting creation of user with the following parameters: {}", request.toString());
 
@@ -65,7 +64,7 @@ public class ApplicationUserController {
 
   @PutMapping(value = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ApplicationUserResponse> update(
-      @NotNull @Valid @RequestBody UpdateApplicationUserRequest request,
+      @Valid @RequestBody UpdateApplicationUserRequest request,
       @PathVariable(name = "userId") String userId
   ) {
     ApplicationUserController.log

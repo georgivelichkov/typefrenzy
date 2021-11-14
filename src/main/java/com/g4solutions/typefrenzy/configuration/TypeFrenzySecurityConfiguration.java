@@ -1,5 +1,6 @@
 package com.g4solutions.typefrenzy.configuration;
 
+import com.g4solutions.typefrenzy.api.filtering.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class TypeFrenzySecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtRequestFilter jwtRequestFilter;
   private final UserDetailsService jwtUserDetailsService;
 
   @Autowired
@@ -48,5 +51,7 @@ public class TypeFrenzySecurityConfiguration extends WebSecurityConfigurerAdapte
         .authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+    httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
   }
 }

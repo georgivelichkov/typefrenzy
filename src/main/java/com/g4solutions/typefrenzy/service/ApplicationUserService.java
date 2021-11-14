@@ -15,6 +15,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ApplicationUserService {
 
+  private final PasswordEncoder passwordEncoder;
   private final ApplicationUserRepository applicationUserRepository;
   private final ApplicationUserFactory applicationUserFactory;
 
@@ -35,6 +37,10 @@ public class ApplicationUserService {
   @Transactional
   public ApplicationUser create(CreateApplicationUserRequest request) {
     ApplicationUser applicationUser = this.applicationUserFactory.create(request);
+
+    if (applicationUserRepository.findByEmail(applicationUser.getEmail()).isPresent()) {
+      throw new IllegalArgumentException("User with this email already exists");
+    }
 
     return this.applicationUserRepository.save(applicationUser);
   }
@@ -52,7 +58,7 @@ public class ApplicationUserService {
 
     applicationUser.setUsername(request.getUsername());
     applicationUser.setEmail(request.getEmail());
-    applicationUser.setPassword(request.getPassword());
+    applicationUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
     return this.applicationUserRepository.save(applicationUser);
   }
@@ -69,7 +75,7 @@ public class ApplicationUserService {
     Optional<ApplicationUser> applicationUser = this.applicationUserRepository
         .findByIdAndDeletedAtNull(userId);
 
-    if (!applicationUser.isPresent()) {
+    if (applicationUser.isEmpty()) {
       throw new ResourceNotFoundException(
           String.format("Application user with id: %s not found!!!", userId));
     }

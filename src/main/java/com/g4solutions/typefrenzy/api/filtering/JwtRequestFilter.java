@@ -1,14 +1,16 @@
 package com.g4solutions.typefrenzy.api.filtering;
 
 import com.g4solutions.typefrenzy.service.JwtUserDetailsService;
+import com.g4solutions.typefrenzy.util.HttpUtils;
 import com.g4solutions.typefrenzy.util.JwtTokenUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import java.io.IOException;
+import java.util.Objects;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,30 +33,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain chain)
       throws ServletException, IOException {
-
-    final String requestTokenHeader = request.getHeader("Authorization");
-
-    String username = null;
-    String jwtToken = null;
+    String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
     JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
+    String email = null;
+    String jwtToken = null;
 
-    if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-      jwtToken = requestTokenHeader.substring(7);
-      try {
-        username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-      } catch (IllegalArgumentException e) {
-        logger.error("Unable to get JWT Token");
-      } catch (ExpiredJwtException e) {
-        logger.error("JWT Token has expired");
-      }
-    } else {
-      logger.warn("JWT Token does not begin with Bearer String");
+    if (Objects.nonNull(authorization)) {
+      email = HttpUtils.getEmailFromRequest(authorization);
+      jwtToken = HttpUtils.getJwtTokenFromRequest(authorization);
     }
 
     // Once we get the token validate it.
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       logger.info("Unauthenticated");
-      UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+      UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(email);
 
       // if token is valid configure Spring Security to manually set
       // authentication

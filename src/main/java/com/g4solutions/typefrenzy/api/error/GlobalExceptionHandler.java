@@ -128,5 +128,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     );
   }
 
-
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ResponseEntity<Object> internalServerError(
+      IllegalArgumentException ex, WebRequest request) {
+    return new ResponseEntity<>(
+        new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), ex.getMessage()),
+        new HttpHeaders(),
+        HttpStatus.BAD_REQUEST
+    );
+  }
 }

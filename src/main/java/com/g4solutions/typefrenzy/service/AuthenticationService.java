@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
 
   private final AuthenticationManager authenticationManager;
-  private JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
   private final JwtUserDetailsService userDetailsService;
+  private static final JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
   private final ApplicationUserService applicationUserService;
 
   public JwtResponse authenticate(JwtRequest authenticationRequest) {
@@ -38,7 +38,7 @@ public class AuthenticationService {
         authenticationRequest.getEmail()
     );
 
-    return new JwtResponse(jwtTokenUtil.generateToken(userDetails));
+    return JwtResponse.create(jwtTokenUtil.generateToken(userDetails));
   }
 
   public JwtResponse register(CreateApplicationUserRequest request) {
@@ -56,7 +56,7 @@ public class AuthenticationService {
         applicationUser.getEmail()
     );
 
-    return new JwtResponse(jwtTokenUtil.generateToken(userDetails));
+    return JwtResponse.create(jwtTokenUtil.generateToken(userDetails));
   }
 
   private void appAuthentication(String email, String password) throws Exception {
